@@ -63,5 +63,39 @@ head(pred2,5)
 predcat <-ifelse(pred2<0.5, 0,1)
 predcat
 
+####KNN
+
+Ulcer<-Ulcer[complete.cases(Ulcer),]
+
+#standardize the predictors 
+Ulcer2 <- data.frame(scale(Ulcer[1:3]))
+
+Ulcer2 <-cbind(Ulcer2, result=Ulcer$result)
+
+n <-sample(43, 20)
+ulcer_train <- Ulcer2[n, ]
+ulcer_test <-Ulcer2[-n, ]
+library(class)
+
+#define the target variable in the training set
+result <-ulcer_train$result
+
+pred <- knn(train=ulcer_train[,-4], test = ulcer_test[,-4], cl=result, k=10)
+
+#get the prediction accuracy
+mean(pred==ulcer_test$result)
+#82%
+
+###Find optimal number of neighbors
+t_knn <-tune.knn(ulcer_train[,-4], factor(ulcer_train[,4]), k=1:100)
+t_knn #best is 19
+plot(t_knn)
+
+#Run knn with optimal k 
+pred <- knn(train=ulcer_train[,-4], test = ulcer_test[,-4], cl=result, k=7)
+
+#get the prediction accuracy
+mean(pred==ulcer_test$result)
+#86.9%
 
 
